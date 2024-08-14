@@ -28,6 +28,10 @@ local deviceScanner_Model
 
 -- ************************ UI Events Start ********************************
 
+Script.serveEvent('CSK_DeviceScanner.OnNewStatusCSKStyle', 'DeviceScanner_OnNewStatusCSKStyle')
+Script.serveEvent('CSK_DeviceScanner.OnNewStatusModuleVersion', 'DeviceScanner_OnNewStatusModuleVersion')
+Script.serveEvent('CSK_DeviceScanner.OnNewStatusModuleIsActive', 'DeviceScanner_OnNewStatusModuleIsActive')
+
 Script.serveEvent("CSK_DeviceScanner.OnNewScanStatus", "DeviceScanner_OnNewScanStatus")
 Script.serveEvent("CSK_DeviceScanner.OnNewInterfaceList", "DeviceScanner_OnNewInterfaceList")
 Script.serveEvent("CSK_DeviceScanner.OnNewInterfaceSelected", "DeviceScanner_OnNewInterfaceSelected")
@@ -109,6 +113,10 @@ end
 --- Function to send all relevant values to UI on resume
 local function handleOnExpiredTmrDeviceScanner()
 
+  Script.notifyEvent("DeviceScanner_OnNewStatusModuleVersion", 'v' .. deviceScanner_Model.version)
+  Script.notifyEvent("DeviceScanner_OnNewStatusCSKStyle", deviceScanner_Model.styleForUI)
+  Script.notifyEvent("DeviceScanner_OnNewStatusModuleIsActive", _G.availableAPIs.default and _G.availableAPIs.specific)
+
   updateUserLevel()
 
   Script.notifyEvent("DeviceScanner_OnDeviceSelected", false)
@@ -180,7 +188,7 @@ local function selectDevice(selection)
       end
     end
   end
-  _G.logger:info(nameOfModule .. ": Selected DeviceNo = " .. tostring(selectedDeviceNo))
+  _G.logger:fine(nameOfModule .. ": Selected DeviceNo = " .. tostring(selectedDeviceNo))
   if selectedDeviceNo ~= '' then
     Script.notifyEvent('DeviceScanner_OnNewIP', deviceScanner_Model.foundDevices[selectedDeviceNo].ipAddress)
     Script.notifyEvent('DeviceScanner_OnNewSubnetMask', deviceScanner_Model.foundDevices[selectedDeviceNo].subnetMask)
@@ -201,7 +209,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.selectDevice", selectDevice)
 
 local function setDeviceIP(ip)
-  _G.logger:info(nameOfModule .. ": Setting new IP = " .. ip)
+  _G.logger:fine(nameOfModule .. ": Setting new IP = " .. ip)
   if deviceScanner_Model.funcs.checkIP(ip) == true then
     currentIP = ip
     Script.notifyEvent('DeviceScanner_OnNewErrorActive', false)
@@ -212,7 +220,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.setDeviceIP", setDeviceIP)
 
 local function setSubnetMask(subnetMask)
-  _G.logger:info(nameOfModule .. ": Setting new Subnet = " .. subnetMask)
+  _G.logger:fine(nameOfModule .. ": Setting new Subnet = " .. subnetMask)
   if deviceScanner_Model.funcs.checkIP(subnetMask) == true then
     currentSubnet = subnetMask
     Script.notifyEvent('DeviceScanner_OnNewErrorActive', false)
@@ -223,7 +231,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.setSubnetMask", setSubnetMask)
 
 local function setGateway(gateway)
-  _G.logger:info(nameOfModule .. ": Setting new Gateway = " .. gateway)
+  _G.logger:fine(nameOfModule .. ": Setting new Gateway = " .. gateway)
   if deviceScanner_Model.funcs.checkIP(gateway) == true then
     currentGateway = gateway
     Script.notifyEvent('DeviceScanner_OnNewErrorActive', false)
@@ -234,7 +242,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.setGateway", setGateway)
 
 local function setDHCP(status)
-  _G.logger:info(nameOfModule .. ": Setting new DHCP = " .. status)
+  _G.logger:fine(nameOfModule .. ": Setting new DHCP = " .. status)
   currentDHCP = status
 end
 Script.serveFunction("CSK_DeviceScanner.setDHCP", setDHCP)

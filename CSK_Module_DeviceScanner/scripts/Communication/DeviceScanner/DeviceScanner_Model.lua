@@ -25,7 +25,9 @@ deviceScanner_Model.funcs = require('Communication/DeviceScanner/helper/funcs')
 deviceScanner_Model.runningSystem = Engine.getTypeName() -- Get type name of device app is running on
 
 -- Scanner for devices
-deviceScanner_Model.scanner = Command.Scan.create() --Scan for other devices
+if _G.availableAPIs.specific == true then
+  deviceScanner_Model.scanner = Command.Scan.create() --Scan for other devices
+end
 deviceScanner_Model.foundDevices = {} -- List of devices found via scan
 deviceScanner_Model.interfaces = Engine.getEnumValues("EthernetInterfaces") -- Available interfaces of device running the app
 if #deviceScanner_Model.interfaces > 1 then
@@ -39,11 +41,21 @@ else
   deviceScanner_Model.serialNo = 987654321 -- Serial dummy
 end
 
+deviceScanner_Model.styleForUI = 'None' -- Optional parameter to set UI style
+deviceScanner_Model.version = Engine.getCurrentAppVersion() -- Version of module
+
 --**************************************************************************
 --********************** End Global Scope **********************************
 --**************************************************************************
 --**********************Start Function Scope *******************************
 --**************************************************************************
+
+--- Function to react on UI style change
+local function handleOnStyleChanged(theme)
+  deviceScanner_Model.styleForUI = theme
+  Script.notifyEvent("DeviceScanner_OnNewStatusCSKStyle", deviceScanner_Model.styleForUI)
+end
+Script.register('CSK_PersistentData.OnNewStatusCSKStyle', handleOnStyleChanged)
 
 --- Function to scan for connected devices
 ---@return string[] deviceScanner_Model.foundDevices Found devices

@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Release 2.1.0
+
+### New features
+- Provide version of module via 'OnNewStatusModuleVersion'
+- Check if features of module can be used on device and provide this via 'OnNewStatusModuleIsActive' event / 'getStatusModuleActive' function
+
+### Improvements
+- New UI design available (e.g. selectable via CSK_Module_PersistentData v4.1.0 or higher), see 'OnNewStatusCSKStyle'
+- Added UI icon and browser tab information
+
 ## Release 2.0.0
 
 ### Improvements
