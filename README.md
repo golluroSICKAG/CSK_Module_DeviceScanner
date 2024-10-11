@@ -12,7 +12,7 @@ For further information regarding the internal used functions / events check out
 ## Information
 
 Tested on:  
-|Device|Firmware|Module version
+|Device|Firmware|Module version|
 |--|--|--|
 |SICK AppEngine|V1.7.0|V2.1.0|
 |SIM1012|V2.4.2|V2.1.0|
