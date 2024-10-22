@@ -56,14 +56,22 @@ funcs.createStringList = createStringList
 
 --- Function to create a json string out of a table content
 ---@param content string[] Lua Table with entries for list
-local function createJsonList(content)
+---@param selection int? Currently selected parameter
+local function createJsonList(content, selection)
+  if selection == nil then
+    selection = 0
+  end
   local deviceList = {}
   if content == nil then
     deviceList = {{DeviceNo = '-', DeviceName = '-', Interface = '-', IP = '-', SubnetMask = '-', MAC = '-', DefaultGateway = '-', DHCP = '-'},}
   else
     if #content >= 1 then
       for i = 1, #content do
-        table.insert(deviceList, {DeviceNo = tostring(i), DeviceName = content[i].devName,  Interface = content[i].interface, IP = content[i].ipAddress, SubnetMask = content[i].subnetMask, MAC = content[i].macAddress, DefaultGateway = content[i].defaultGateway, DHCP = content[i].dhcp})
+        local isSelected = false
+        if i == selection then
+          isSelected = true
+        end
+        table.insert(deviceList, {DeviceNo = tostring(i), DeviceName = content[i].devName,  Interface = content[i].interface, IP = content[i].ipAddress, SubnetMask = content[i].subnetMask, MAC = content[i].macAddress, DefaultGateway = content[i].defaultGateway, DHCP = content[i].dhcp, selected = isSelected})
       end
     else
       deviceList = {{DeviceNo = '-', DeviceName = '-', Interface = '-', IP = '-', SubnetMask = '-', MAC = '-', DefaultGateway = '-', DHCP = '-'},}

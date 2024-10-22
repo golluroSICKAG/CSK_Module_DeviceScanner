@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 - New UI design available (e.g. selectable via CSK_Module_PersistentData v4.1.0 or higher), see 'OnNewStatusCSKStyle'
 - Added UI icon and browser tab information
 
+### Bugfix
+- No deselection of device via UI table
+
 ## Release 2.0.0
 
 ### Improvements

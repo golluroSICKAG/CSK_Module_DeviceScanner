@@ -59,6 +59,7 @@ local function main()
   ----------------------------------------------------------------------------------------
   -- For further steps, please use the UI
   ----------------------------------------------------------------------------------------
+  CSK_DeviceScanner.pageCalled()
 
 end
 Script.register("Engine.OnStarted", main)

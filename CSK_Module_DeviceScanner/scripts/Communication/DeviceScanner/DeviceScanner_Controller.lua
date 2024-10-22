@@ -170,24 +170,53 @@ local function getDeviceListJSON()
 end
 Script.serveFunction("CSK_DeviceScanner.getDeviceListJSON", getDeviceListJSON)
 
-local function selectDevice(selection)
-
-  if selection == "" then
-    selectedDeviceNo = ''
-  else
-    local _, pos = string.find(selection, '"DeviceNo":"')
+--- Function to check if selection in UIs DynamicTable can find related pattern
+---@param selection string Full text of selection
+---@param pattern string Pattern to search for
+---@param findEnd bool Find end after pattern
+---@return string? Success if pattern was found or even postfix after pattern till next quotation marks if findEnd was set to TRUE
+local function checkSelection(selection, pattern, findEnd)
+  if selection ~= "" then
+    local _, pos = string.find(selection, pattern)
     if pos == nil then
-      _G.logger:info(nameOfModule .. ": Did not find DeviceNo")
-      selectedDeviceNo = ''
+      return nil
     else
-      pos = tonumber(pos)
-      local endPos = string.find(selection, '"', pos+1)
-      selectedDeviceNo = tonumber(string.sub(selection, pos+1, endPos-1))
-      if selectedDeviceNo == nil then
-        selectedDeviceNo = ''
+      if findEnd then
+        pos = tonumber(pos)
+        local endPos = string.find(selection, '"', pos+1)
+        if endPos then
+          local tempSelection = string.sub(selection, pos+1, endPos-1)
+          if tempSelection ~= nil and tempSelection ~= '-' then
+            return tempSelection
+          end
+        else
+          return nil
+        end
+      else
+        return 'true'
       end
     end
   end
+  return nil
+end
+
+local function selectDevice(selection)
+
+  local tempSelection = checkSelection(selection, '"DeviceNo":"', true)
+  if tempSelection then
+    local isSelected = checkSelection(selection, '"selected":true', false)
+    if isSelected then
+      selectedDeviceNo = tonumber(tempSelection)
+      if not selectedDeviceNo then
+        selectedDeviceNo = ''
+      end
+    else
+      selectedDeviceNo = ''
+    end
+  else
+    selectedDeviceNo = ''
+  end
+
   _G.logger:fine(nameOfModule .. ": Selected DeviceNo = " .. tostring(selectedDeviceNo))
   if selectedDeviceNo ~= '' then
     Script.notifyEvent('DeviceScanner_OnNewIP', deviceScanner_Model.foundDevices[selectedDeviceNo].ipAddress)
@@ -202,8 +231,11 @@ local function selectDevice(selection)
     currentGateway = deviceScanner_Model.foundDevices[selectedDeviceNo].defaultGateway
     currentDHCP = deviceScanner_Model.foundDevices[selectedDeviceNo].dhcp
 
+    Script.notifyEvent('DeviceScanner_OnNewDeviceTable', deviceScanner_Model.funcs.createJsonList(deviceScanner_Model.foundDevices, selectedDeviceNo))
+
   else
     Script.notifyEvent("DeviceScanner_OnDeviceSelected", false)
+    Script.notifyEvent('DeviceScanner_OnNewDeviceTable', deviceScanner_Model.funcs.createJsonList(deviceScanner_Model.foundDevices))
   end
 end
 Script.serveFunction("CSK_DeviceScanner.selectDevice", selectDevice)
