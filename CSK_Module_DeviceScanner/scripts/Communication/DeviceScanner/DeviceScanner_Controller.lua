@@ -28,6 +28,10 @@ local deviceScanner_Model
 
 -- ************************ UI Events Start ********************************
 
+Script.serveEvent('CSK_DeviceScanner.OnNewStatusCSKStyle', 'DeviceScanner_OnNewStatusCSKStyle')
+Script.serveEvent('CSK_DeviceScanner.OnNewStatusModuleVersion', 'DeviceScanner_OnNewStatusModuleVersion')
+Script.serveEvent('CSK_DeviceScanner.OnNewStatusModuleIsActive', 'DeviceScanner_OnNewStatusModuleIsActive')
+
 Script.serveEvent("CSK_DeviceScanner.OnNewScanStatus", "DeviceScanner_OnNewScanStatus")
 Script.serveEvent("CSK_DeviceScanner.OnNewInterfaceList", "DeviceScanner_OnNewInterfaceList")
 Script.serveEvent("CSK_DeviceScanner.OnNewInterfaceSelected", "DeviceScanner_OnNewInterfaceSelected")
@@ -109,6 +113,10 @@ end
 --- Function to send all relevant values to UI on resume
 local function handleOnExpiredTmrDeviceScanner()
 
+  Script.notifyEvent("DeviceScanner_OnNewStatusModuleVersion", 'v' .. deviceScanner_Model.version)
+  Script.notifyEvent("DeviceScanner_OnNewStatusCSKStyle", deviceScanner_Model.styleForUI)
+  Script.notifyEvent("DeviceScanner_OnNewStatusModuleIsActive", _G.availableAPIs.default and _G.availableAPIs.specific)
+
   updateUserLevel()
 
   Script.notifyEvent("DeviceScanner_OnDeviceSelected", false)
@@ -162,25 +170,54 @@ local function getDeviceListJSON()
 end
 Script.serveFunction("CSK_DeviceScanner.getDeviceListJSON", getDeviceListJSON)
 
-local function selectDevice(selection)
-
-  if selection == "" then
-    selectedDeviceNo = ''
-  else
-    local _, pos = string.find(selection, '"DeviceNo":"')
+--- Function to check if selection in UIs DynamicTable can find related pattern
+---@param selection string Full text of selection
+---@param pattern string Pattern to search for
+---@param findEnd bool Find end after pattern
+---@return string? Success if pattern was found or even postfix after pattern till next quotation marks if findEnd was set to TRUE
+local function checkSelection(selection, pattern, findEnd)
+  if selection ~= "" then
+    local _, pos = string.find(selection, pattern)
     if pos == nil then
-      _G.logger:info(nameOfModule .. ": Did not find DeviceNo")
-      selectedDeviceNo = ''
+      return nil
     else
-      pos = tonumber(pos)
-      local endPos = string.find(selection, '"', pos+1)
-      selectedDeviceNo = tonumber(string.sub(selection, pos+1, endPos-1))
-      if selectedDeviceNo == nil then
-        selectedDeviceNo = ''
+      if findEnd then
+        pos = tonumber(pos)
+        local endPos = string.find(selection, '"', pos+1)
+        if endPos then
+          local tempSelection = string.sub(selection, pos+1, endPos-1)
+          if tempSelection ~= nil and tempSelection ~= '-' then
+            return tempSelection
+          end
+        else
+          return nil
+        end
+      else
+        return 'true'
       end
     end
   end
-  _G.logger:info(nameOfModule .. ": Selected DeviceNo = " .. tostring(selectedDeviceNo))
+  return nil
+end
+
+local function selectDevice(selection)
+
+  local tempSelection = checkSelection(selection, '"DeviceNo":"', true)
+  if tempSelection then
+    local isSelected = checkSelection(selection, '"selected":true', false)
+    if isSelected then
+      selectedDeviceNo = tonumber(tempSelection)
+      if not selectedDeviceNo then
+        selectedDeviceNo = ''
+      end
+    else
+      selectedDeviceNo = ''
+    end
+  else
+    selectedDeviceNo = ''
+  end
+
+  _G.logger:fine(nameOfModule .. ": Selected DeviceNo = " .. tostring(selectedDeviceNo))
   if selectedDeviceNo ~= '' then
     Script.notifyEvent('DeviceScanner_OnNewIP', deviceScanner_Model.foundDevices[selectedDeviceNo].ipAddress)
     Script.notifyEvent('DeviceScanner_OnNewSubnetMask', deviceScanner_Model.foundDevices[selectedDeviceNo].subnetMask)
@@ -194,14 +231,17 @@ local function selectDevice(selection)
     currentGateway = deviceScanner_Model.foundDevices[selectedDeviceNo].defaultGateway
     currentDHCP = deviceScanner_Model.foundDevices[selectedDeviceNo].dhcp
 
+    Script.notifyEvent('DeviceScanner_OnNewDeviceTable', deviceScanner_Model.funcs.createJsonList(deviceScanner_Model.foundDevices, selectedDeviceNo))
+
   else
     Script.notifyEvent("DeviceScanner_OnDeviceSelected", false)
+    Script.notifyEvent('DeviceScanner_OnNewDeviceTable', deviceScanner_Model.funcs.createJsonList(deviceScanner_Model.foundDevices))
   end
 end
 Script.serveFunction("CSK_DeviceScanner.selectDevice", selectDevice)
 
 local function setDeviceIP(ip)
-  _G.logger:info(nameOfModule .. ": Setting new IP = " .. ip)
+  _G.logger:fine(nameOfModule .. ": Setting new IP = " .. ip)
   if deviceScanner_Model.funcs.checkIP(ip) == true then
     currentIP = ip
     Script.notifyEvent('DeviceScanner_OnNewErrorActive', false)
@@ -212,7 +252,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.setDeviceIP", setDeviceIP)
 
 local function setSubnetMask(subnetMask)
-  _G.logger:info(nameOfModule .. ": Setting new Subnet = " .. subnetMask)
+  _G.logger:fine(nameOfModule .. ": Setting new Subnet = " .. subnetMask)
   if deviceScanner_Model.funcs.checkIP(subnetMask) == true then
     currentSubnet = subnetMask
     Script.notifyEvent('DeviceScanner_OnNewErrorActive', false)
@@ -223,7 +263,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.setSubnetMask", setSubnetMask)
 
 local function setGateway(gateway)
-  _G.logger:info(nameOfModule .. ": Setting new Gateway = " .. gateway)
+  _G.logger:fine(nameOfModule .. ": Setting new Gateway = " .. gateway)
   if deviceScanner_Model.funcs.checkIP(gateway) == true then
     currentGateway = gateway
     Script.notifyEvent('DeviceScanner_OnNewErrorActive', false)
@@ -234,7 +274,7 @@ end
 Script.serveFunction("CSK_DeviceScanner.setGateway", setGateway)
 
 local function setDHCP(status)
-  _G.logger:info(nameOfModule .. ": Setting new DHCP = " .. status)
+  _G.logger:fine(nameOfModule .. ": Setting new DHCP = " .. status)
   currentDHCP = status
 end
 Script.serveFunction("CSK_DeviceScanner.setDHCP", setDHCP)

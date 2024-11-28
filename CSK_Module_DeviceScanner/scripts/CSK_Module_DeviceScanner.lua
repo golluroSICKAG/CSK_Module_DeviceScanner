@@ -25,15 +25,12 @@
 --**************************************************************************
 --**********************Start Global Scope *********************************
 --**************************************************************************
------------------------------------------------------------
+
 -- If app property "LuaLoadAllEngineAPI" is FALSE, use this to load and check for required APIs
 -- This can improve performance of garbage collection
 _G.availableAPIs = require('Communication.DeviceScanner.helper.checkAPIs') -- can be used to adjust function scope of the module related on available APIs of the device
 -----------------------------------------------------------
---**************************************************************************
------------------------------------------------------------
 -- Logger
--- Following logger part can also be replaced with the Logger module
 _G.logger = Log.SharedLogger.create('ModuleLogger')
 _G.logHandle = Log.Handler.create()
 _G.logHandle:attachToSharedLogger('ModuleLogger')
@@ -45,6 +42,10 @@ _G.logHandle:applyConfig()
 -- Loading script regarding DeviceScanner_Model
 -- Check this script regarding DeviceScanner_Model parameters and functions
 _G.deviceScanner_Model = require('Communication/DeviceScanner/DeviceScanner_Model')
+
+if _G.availableAPIs.default == false or _G.availableAPIs.specific == false then
+  _G.logger:warning("CSK_DeviceScanner: Relevant CROWN(s) not available on device. Module is not supported...")
+end
 
 --**************************************************************************
 --**********************End Global Scope ***********************************
@@ -58,6 +59,7 @@ local function main()
   ----------------------------------------------------------------------------------------
   -- For further steps, please use the UI
   ----------------------------------------------------------------------------------------
+  CSK_DeviceScanner.pageCalled()
 
 end
 Script.register("Engine.OnStarted", main)

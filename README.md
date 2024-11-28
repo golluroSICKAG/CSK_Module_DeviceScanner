@@ -2,7 +2,7 @@
 
 Module to provide features for device scan and to configure connected devices.  
 
-![](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceScanner/blob/main/docu/media/UI_Screenshot.png)
+![](./docu/media/UI_Screenshot.png)
 
 ## How to Run
 
@@ -11,10 +11,13 @@ For further information regarding the internal used functions / events check out
 
 ## Information
 
-Tested on  
-
-1. SIM1012        - Firmware 2.2.0
-2. SICK AppEngine - Firmware 1.3.2
+Tested on:  
+|Device|Firmware|Module version|
+|--|--|--|
+|SICK AppEngine|V1.7.0|V2.1.0|
+|SIM1012|V2.4.2|V2.1.0|
+|SICK AppEngine|V1.3.2|<V2.1.0|
+|SIM1012|V2.2.0|<V2.1.0|
 
 This module is part of the SICK AppSpace Coding Starter Kit developing approach.  
 It is programmed in an object oriented way. Some of these modules use kind of "classes" in Lua to make it possible to reuse code / classes in other projects.  

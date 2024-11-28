@@ -71,6 +71,18 @@ Typically the feature of this module is used like this: +
                     <desc>Status of Admin userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
                     <param desc="Status" multiplicity="1" name="status" type="bool"/>
                 </event>
+                <event name="OnNewStatusCSKStyle">
+                    <desc>Notify UI style to use for CSK modules.</desc>
+                    <param desc="UI style" multiplicity="1" name="theme" type="string"/>
+                </event>
+                <event name="OnNewStatusModuleVersion">
+                    <desc>Notify version of module.</desc>
+                    <param desc="Version" multiplicity="1" name="version" type="string"/>
+                </event>
+                <event name="OnNewStatusModuleIsActive">
+                    <desc>Notify if module can be used on device.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
                 <function name="pageCalled">
                     <desc>Function to register "OnResume" of the module UI (only as helper function).</desc>
                     <return desc="Empty string (only needed to simplify binding)." multiplicity="1" name="empty" type="string"/>
@@ -109,10 +121,14 @@ Typically the feature of this module is used like this: +
                     <desc>Select interface to search on.</desc>
                     <param desc="Interface ID" multiplicity="1" name="selection" type="string"/>
                 </function>
+                <function name="getStatusModuleActive">
+                    <desc>Function to get status if module is active.</desc>
+                    <return desc="Status" multiplicity="1" name="status" type="bool"/>
+                </function>
             </serves>
         </crown>
         <meta key="author">SICK AG</meta>
-        <meta key="version">2.0.0</meta>
+        <meta key="version">2.1.0</meta>
         <meta key="priority">low</meta>
         <meta key="copy-protected">false</meta>
         <meta key="read-protected">false</meta>
